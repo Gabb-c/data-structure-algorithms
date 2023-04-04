@@ -65,6 +65,78 @@ pub mod sort {
             }
         }
     }
+
+    pub fn selection<T: PartialOrd>(input: &mut [T]) {
+        if input.len() < 2 {
+            return;
+        }
+
+        for i in 0..input.len() {
+            let swap_val = {
+                let mut min = &input[i];
+                let mut index_min = i;
+
+                for j in i + 1..input.len() {
+                    if input[j] < *min {
+                        min = &input[j];
+                        index_min = j;
+                    }
+                }
+                index_min
+            };
+
+            if i != swap_val {
+                input.swap(i, swap_val);
+            }
+        }
+    }
+
+    pub fn merge<T: PartialOrd + Copy>(input: &mut [T]) {
+        if input.len() < 2 {
+            return;
+        }
+
+        let len = input.len();
+        let mid = len / 2;
+
+        merge(&mut input[..mid]);
+        merge(&mut input[mid..]);
+
+        let mut tmp = Vec::with_capacity(len);
+        let mut i = 0;
+        let mut j = mid;
+
+        while i < mid && j < len {
+            if input[i] < input[j] {
+                tmp.push(input[i]);
+                i += 1;
+            } else {
+                tmp.push(input[j]);
+                j += 1;
+            }
+        }
+        if i < mid {
+            tmp.extend_from_slice(&input[i..mid]);
+        } else if j < len {
+            tmp.extend_from_slice(&input[j..len]);
+        }
+
+        input.copy_from_slice(&tmp[..]);
+    }
+
+    pub fn insertion<T: PartialOrd>(input: &mut [T]) {
+        if input.len() < 2 {
+            return;
+        }
+
+        for i in 1..input.len() {
+            let mut j = i;
+            while j > 0 && input[j - 1] > input[j] {
+                input.swap(j - 1, j);
+                j -= 1;
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -109,22 +181,33 @@ mod sort_tests {
     #[test]
     fn test_bubble_sort() {
         let mut rng = thread_rng();
-        let mut items: Vec<i32> = (1..=5).collect();
+        let mut items: Vec<i32> = (1..=10000).collect();
         items.shuffle(&mut rng);
 
         bubble(&mut items);
 
-        assert_eq!((1..=5).collect::<Vec<i32>>(), items);
+        assert_eq!((1..=10000).collect::<Vec<i32>>(), items);
     }
 
     #[test]
     fn test_counting_sort() {
         let mut rng = thread_rng();
-        let mut items: Vec<usize> = (0..=5).collect();
+        let mut items: Vec<usize> = (0..=10000).collect();
         items.shuffle(&mut rng);
 
         counting(&mut items);
 
-        assert_eq!((0..=5).collect::<Vec<usize>>(), items);
+        assert_eq!((0..=10000).collect::<Vec<usize>>(), items);
+    }
+
+    #[test]
+    fn merge_sort() {
+        let mut rng = thread_rng();
+        let mut items: Vec<i32> = (0..=10000).collect();
+        items.shuffle(&mut rng);
+
+        merge(&mut items);
+
+        assert_eq!((0..=10000).collect::<Vec<i32>>(), items);
     }
 }
