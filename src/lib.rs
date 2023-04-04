@@ -36,7 +36,6 @@ pub mod sort {
 
         for i in (0..items.len()).rev() {
             let mut has_swapped = false;
-
             for j in 0..i {
                 if items[j] > items[j + 1] {
                     items.swap(j, j + 1);
@@ -50,8 +49,9 @@ pub mod sort {
         }
     }
 
-    pub fn counting(arr: &mut [i32], maxval: usize) {
-        let mut occurences = vec![0; maxval + 1];
+    pub fn counting(arr: &mut [usize]) {
+        let max_val = arr.iter().max().unwrap();
+        let mut occurences = vec![0; max_val + 1];
 
         for &data in arr.iter() {
             occurences[data as usize] += 1;
@@ -60,7 +60,7 @@ pub mod sort {
         let mut i = 0;
         for (data, &number) in occurences.iter().enumerate() {
             for _ in 0..number {
-                arr[i] = data as i32;
+                arr[i] = data;
                 i += 1;
             }
         }
@@ -120,11 +120,11 @@ mod sort_tests {
     #[test]
     fn test_counting_sort() {
         let mut rng = thread_rng();
-        let mut items: Vec<i32> = (0..=5).collect();
+        let mut items: Vec<usize> = (0..=5).collect();
         items.shuffle(&mut rng);
 
-        counting(&mut items, 5);
+        counting(&mut items);
 
-        assert_eq!((0..=5).collect::<Vec<i32>>(), items);
+        assert_eq!((0..=5).collect::<Vec<usize>>(), items);
     }
 }
